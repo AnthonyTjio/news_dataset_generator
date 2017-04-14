@@ -6,6 +6,8 @@ from lib.scanner import Scanner
 from lib.similarity_checker import SimilarityChecker
 from lib.CSVEditor import CSVEditor
 from lib.CSVTranslator import CSVTranslator
+from lib.DictionaryEditor import DictionaryEditor
+from lib.TextAnalyzer import TextAnalyzer
 
 class Driver:
 
@@ -78,10 +80,42 @@ class Driver:
 				dest_similar, dest_unique, similarity_threshold)
 
 	@classmethod
-	def clean_csv(cls, csv_src, regex, columns_to_clean):
-		CSVEditor.clean_column_with_regex(csv_src, regex, columns_to_clean)
+	def clean_csv(cls, csv_src="./data.csv", safe=False, regex_check=False, regex="", columns_to_clean=[], 
+				  threshold_check=False, threshold_column_check=[], min_legth=50, duplicate_check=False, 
+				  duplicate_column_check=[]):
+		
+		if regex_check:
+			if safe:
+				CSVEditor.safe_clean_column_with_regex(csv_src, regex, columns_to_clean)
+			else:
+				CSVEditor.clean_column_with_regex(csv_src, regex, columns_to_clean)
+
+		if threshold_check:
+			CSVEditor.remove_under_threshold_columns(csv_src, threshold_column_check, min_legth)
+
+		if duplicate_check:
+			CSVEditor.remove_duplicate_columns(csv_src, duplicate_column_check)
 
 	@classmethod
 	def count_label(cls, csv_src, label_column_index):
 		csvTranslator = CSVTranslator()
 		csvTranslator.analyze_tag_distribution(csv_src, label_column_index)
+
+	@classmethod
+	def tokenize_text_file(cls, txt_src, txt_target=None, regex=None):
+		DictionaryEditor.tokenize_txt_file(txt_src, txt_target=txt_target, regex=regex)
+
+	@classmethod
+	def xor_text_file(cls, src_1, src_2):
+		DictionaryEditor.remove_similar_tokens(src_1, src_2)
+
+	@classmethod
+	def sentiment_comparison(
+			cls, csv_src="data.csv", pos_sent_list_dir="./lib/sentiment_dictionary/bahasa/new_positive.txt",
+			neg_sent_list_dir="./lib/sentiment_dictionary/bahasa/new_negative.txt", 
+			dest_over_emotion="./moderation/overexpression.csv", 
+			dest_normal_emotion="./moderation/normalexpression.csv"):
+
+		textAnalyzer = TextAnalyzer(pos_sent_list_dir=pos_sent_list_dir, neg_sent_list_idr=neg_sent_list_dir)
+		
+

@@ -1,4 +1,5 @@
 import csv
+import os
 import random
 import numpy as np
 
@@ -37,18 +38,21 @@ class CSVTranslator:
 			Return:
 				data(list): List of data in a row
 		"""
-		with open(src, 'r') as input:
-			reader = csv.reader(input, delimiter=",")
+		with open(src, 'r') as input_data:
+			reader = csv.reader(input_data, delimiter=",")
+			try:
+				input_data.seek(row_index)
+				data = []
+				row = next(reader)
 
-			for index, row in enumerate(reader):
-				if (index==int(row_index)):
-					data = []
-					for column in row:
-						data.append(column)
+				for info in row:
+					data.append(info)
 
-					return data
+				return data
 
-			return None
+			except Exception as error:
+				print("Not Found")
+				return None
 
 	@classmethod
 	def get_csv_number_of_row(self, src):
@@ -80,15 +84,17 @@ class CSVTranslator:
 				label_column_index(int): label column position in csv file
 		"""
 		rows = self.csv_to_list(csv_src)
+		total_labels = 0
 		labels = {}
 		for row in rows:
+			total_labels +=1
 			label = row[int(label_column_index)]
 			if(label not in labels):
 				labels[label] = 0
 			labels[label] +=1
 
 		for label in labels.keys():
-			print(str(label)+" is "+str(labels[label]))
+			print(str(label)+" is "+str(labels[label])+" or {0:.0f}%".format(int(labels[label])/int(total_labels) * 100))
 
 	@classmethod
 	def split_data(self, src_list, ratio):

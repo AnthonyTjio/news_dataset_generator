@@ -11,17 +11,19 @@ class TextAnalyzer:
 	word_list = []
 	sent_list = []
 
-	def __init__(self, word_list_dir=None, sent_list_dir=None):
+	def __init__(self, word_list_dir=None, pos_sent_list_dir=None, neg_sent_list_dir=None):
 		"""
 			Initializing Text Analyzer Object, User may insert the word list dictionary and sentiment 
 			dictionary for further usage
 
 			Args:
 				word_list_dir(str, optional): Directory of the word dictionary list (file in txt format)
-				sent_dir(str, optional): Directory of sentiment dictionary list (file in txt format)
+				pos_sent_dir(str, optional): Directory of positive sentiment dictionary list (file in txt format)
+				neg_sent_dir(str, optional): Directory of negative sentiment dictionary list (file in txt format)
 		"""
 		self.word_list_dir = word_list_dir
-		self.sent_list_dir = sent_list_dir
+		self.pos_sent_list_dir = pos_sent_list_dir
+		self.neg_sent_list_dir = neg_sent_list_dir
 
 		self.factory = StemmerFactory()
 		self.stemmer = self.factory.create_stemmer()
@@ -40,18 +42,31 @@ class TextAnalyzer:
 			else:
 				raise StandardError("Word List Dictionary is not found")
 
-		# Loading Sentiment List Dictionary if given
-		if (sent_list_dir is not None):
-			if os.path.isfile(sent_list_dir):
-				read_sent = open(sent_list_dir, 'r')
-				readline_sent = read_sent.readlines()
-				if readline_sent is not None:
-					for sent in readline_src:
-						self.sent_list.append(sent)
+		# Loading Positive Sentiment List Dictionary if given
+		if (pos_sent_list_dir is not None):
+			if os.path.isfile(pos_sent_list_dir):
+				read_sen = open(pos_sent_list_dir, 'r')
+				readline_sen = read_sen.readlines()
+				if readline_sen is not None:
+					for sen in readline_src:
+						self.pos_sent_list.append(sen)
 				else:
-					raise StandardError("Sentiment List Dictionary is empty")
+					raise StandardError("Positive Sentiment List Dictionary is empty")
 			else:
-				raise StandardError("Sentiment List Dictionary is not found")
+				raise StandardError("Positive Sentiment List Dictionary is not found")
+
+		# Loading Negative Sentiment List Dictionary if given
+		if (neg_sent_list_dir is not None):
+			if os.path.isfile(neg_sent_list_dir):
+				read_sen = open(neg_sent_list_dir, 'r')
+				readline_sen = read_sen.readlines()
+				if readline_sen is not None:
+					for sen in readline_src:
+						self.neg_sent_list.append(sen)
+				else:
+					raise StandardError("Negative Sentiment List Dictionary is empty")
+			else:
+				raise StandardError("Negative Sentiment List Dictionary is not found")
 
 	def retrieve_non_dictionary_words(self, text, word_list_dir=None):
 		if (word_list_dir is not None):

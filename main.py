@@ -18,43 +18,77 @@ elif(command == "scan"):
 	Driver.scan()
 
 elif(command == "compare"):
-	opts, args = getopt.getopt(sys.argv[2:], "Ss:", ["safe=", "source="])
-	if(len(sys.argv)>2):
+	opts, args = getopt.getopt(sys.argv[2:], "hS:s:", ["help=", "safe=", "source="])
+	
+	safe = False
+	src = None
+	
+	for opt, arg in opts:
+		if opt in ("-S", "--safe"):
+			safe = arg
+		elif opt in ("-s", "source"):
+			src = arg
+		elif opt in ("-h", "--help"):
+			print("main.py -s <SafeStatus> -s <csv_source>")
+			sys.exit()
+
+	if (src is None):
+		src = "./data.csv"
+
+	Driver.compare(csv_src=src, safe=safe)
+
+elif(command == "clean"):
+	opts, args = getopt.getopt(sys.argv[2:], "hS:s:R:r:D:d:T:t:", 
+											["help", "safe=", "source=", "regex=", "regex_column=", "duplicate=",
+											 "duplicate_column=", "threshold=", "threshold_column="])
+	if (len(sys.argv) >=5):
 		safe = False
 		src = None
+		regex_check = False
+		regex = ""
+		regex_column =[]
+		threshold_check = False
+		threshold = 0
+		threshold_column = []
+		duplicate_check = False
+		duplicate_column = []
 		for opt, arg in opts:
 			if opt in ("-S", "--safe"):
 				safe = arg
-			elif opt in ("-s", "source"):
+			elif opt in ("-s", "--source"):
 				src = arg
-
+			elif opt in ("-R", "--regex"):
+				regex = arg
+				regex_check = True
+			elif opt in ("-r", "--regex_column"):
+				regex_column.append(int(arg))
+			elif opt in ("-D", "--duplicate"):
+				duplicate_check = arg
+			elif opt in ("-d", "--duplicate_column"):
+				duplicate_column.append(int(arg))
+			elif opt in ("-T", "--threshold"):
+				threshold = arg
+				threshold_check = True
+			elif opt in ("-t", "--threshold_column"):
+				print(arg)
+				threshold_column.append(int(arg))
+			elif opt in ("-h", "--help"):
+				print("main.py -S <SafeStatus> -s <csv_source> -r <regex> -c <column_num> -c <column_num>",
+					  "-D <DuplicateStatus> -d <duplicate_column_num> -d <duplicate_column_num>",
+					  "-T <NumOfCharMinThreshold> -t <threshold_column_num> -t <threshold_column_num>")
+				sys.exit()
 		if (src is None):
 			src = "./data.csv"
-		if (safe):
-			Driver.compare(csv_src=src, safe=True)
-		else:
-			Driver.compare(csv_src=src)
 
-elif(command == "compare"):
-	if (len(sys.argv) == 3):
-		src = sys.argv[2].lower()
-		Driver.compare(csv_src=src)
+		Driver.clean_csv(src, safe=safe, regex_check=regex_check, regex=regex, columns_to_clean=regex_column,
+						 threshold_check=threshold_check, threshold_column_check=threshold_column,
+						 min_legth=threshold, duplicate_check=duplicate_check, 
+						 duplicate_column_check=duplicate_column)
 	else:
-		Driver.compare()
-
-elif(command == "clean"):
-	if (len(sys.argv) >=5):
-		src = sys.argv[2].lower()
-		# src = "data.csv"
-		regex = sys.argv[3]
-		columns = []
-
-		for i in sys.argv[4:]:
-			columns.append(i)	
-		print
-		Driver.clean_csv(src, regex, columns)
-	else:
-		"Require at least 3 parameters with format Source(Optional) - Regex - Column(s) "
+		print("main.py -S <SafeStatus> -s <csv_source> -r <regex> -c <column_num> -c <column_num>",
+					  "-D <DuplicateStatus> -d <duplicate_column_num> -d <duplicate_column_num>",
+					  "-T <NumOfCharMinThreshold> -t <threshold_column_num> -t <threshold_column_num>")
+		sys.exit()
 
 elif(command == "count"):
 	if (len(sys.argv) == 4):
@@ -62,3 +96,30 @@ elif(command == "count"):
 		column = sys.argv[3]
 		Driver.count_label(src, column)
 
+elif(command == "tokentxtfile"):
+	opts, args = getopt.getopt(sys.argv[2:], "i:o:r:", ["input=", "output=", "regex="])
+
+	input_file = None
+	output_file = None
+	regex = None
+
+	for opt, arg in opts:
+		if opt in ("-i", "--input"):
+			input_file = arg
+		elif opt in ("-o", "--output"):
+			output_file = arg
+		elif opt in("-r", "--regex"):
+			regex = arg
+
+	if input_file == None:
+		print("main.py -i <inputfile> -o <outputfile> -r <regex>")
+	else:
+		Driver.tokenize_text_file(txt_src=input_file, txt_target=output_file, regex=regex)
+
+elif(command == "xortoken"):
+	if(len(sys.argv)==4):
+		src_1_dir = sys.argv[2]
+		src_2_dir = sys.argv[3]
+		Driver.xor_text_file(src_1_dir, src_2_dir)
+	else:
+		print("main.py <src_1_dir> <src_2_dir>")
