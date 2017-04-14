@@ -5,6 +5,7 @@ from lib.grabber import Grabber
 from lib.scanner import Scanner
 from lib.similarity_checker import SimilarityChecker
 from lib.CSVEditor import CSVEditor
+from lib.CSVTranslator import CSVTranslator
 
 class Driver:
 
@@ -60,12 +61,18 @@ class Driver:
 		Scanner._extract_data()
 
 	@classmethod
-	def compare(cls, csv_src="data.csv", 
+	def compare(cls, csv_src="data.csv", safe=False,
 				src_column_index=0, title_column_index=1, article_column_index=2,
 				label_column_index=3, dest_similar="./moderation/similar.csv",
 				dest_unique="./moderation/unique.csv", similarity_threshold=0.75):
 
-		SimilarityChecker.analyze(
+		if(safe):
+			SimilarityChecker.safe_analyze(
+				csv_src, src_column_index, title_column_index,
+				article_column_index, label_column_index,
+				dest_similar, dest_unique, similarity_threshold)
+		else:			
+			SimilarityChecker.analyze(
 				csv_src, src_column_index, title_column_index,
 				article_column_index, label_column_index,
 				dest_similar, dest_unique, similarity_threshold)
@@ -73,3 +80,8 @@ class Driver:
 	@classmethod
 	def clean_csv(cls, csv_src, regex, columns_to_clean):
 		CSVEditor.clean_column_with_regex(csv_src, regex, columns_to_clean)
+
+	@classmethod
+	def count_label(cls, csv_src, label_column_index):
+		csvTranslator = CSVTranslator()
+		csvTranslator.analyze_tag_distribution(csv_src, label_column_index)
