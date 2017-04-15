@@ -10,7 +10,7 @@ import os
 import sys 
 import re
 import json
-from .WordSanitizer import WordSanitizer
+from .StringManipulator import StringManipulator
 
 class Scanner:
 
@@ -25,7 +25,7 @@ class Scanner:
 	def parse(
 			cls, src, target, label, 
 			title_level, title_tag, title_code, 
-			article_level, article_tag, article_code, error_dir='./scanner_error_log.csv', src_dir=None):
+			article_level, article_tag, article_code, error_dir='./scan_error_log.csv', src_dir=None):
 		"""
 			Retrieve title and article from url list and insert into csv file
 			csv file will be containing src - title - article - label
@@ -66,7 +66,7 @@ class Scanner:
 					print("Processing "+url+"")
 					data = []
 					
-					url = WordSanitizer.remove_hidden_characters(url)
+					url = StringManipulator.remove_hidden_characters(url)
 
 					r = requests.get(url)
 					soup = BeautifulSoup(r.text, 'html5lib')
@@ -90,8 +90,8 @@ class Scanner:
 					if (article):
 						print('Retrieved data from '+url)
 						
-						title = WordSanitizer.sanitize_text_data(title)
-						article = WordSanitizer.sanitize_text_data(article)
+						title = StringManipulator.sanitize_text_data(title)
+						article = StringManipulator.sanitize_text_data(article)
 
 						data.append(src)
 						data.append(title)

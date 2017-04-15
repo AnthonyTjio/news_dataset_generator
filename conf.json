@@ -25,7 +25,7 @@
 		"article_code": "(text_detail|detail_text|read__content)",
 		"label": 1,
 		"iteration": 0,
-		"scan": true
+		"scan": false
 	},
 	{
 		"src": "kompas",
@@ -39,7 +39,7 @@
 		"article_code": "kcm-read-text",
 		"label": 1,
 		"iteration": 0,
-		"scan": true
+		"scan": false
 	},
 	{
 		"src": "intelijen",
@@ -53,7 +53,7 @@
 		"article_code": null,
 		"label": 0,
 		"iteration": 0,
-		"scan": true
+		"scan": false
 	},
 	{
 		"src": "liputan6",
@@ -67,7 +67,7 @@
 		"article_code": "article-content-body__item-page",
 		"label": 1,
 		"iteration": 0,
-		"scan": true
+		"scan": false
 	},
 	{
 		"src": "tribunnews",
@@ -80,8 +80,23 @@
 		"article_tag": "class",
 		"article_code": "txt-article",
 		"label": 1,
-		"iteration": 3,
+		"iteration": 0,
+		"scan": false
+	},
+	{
+		"src": "jpnn",
+		"base_url": "http://www.jpnn.tk",
+		"regex": "http://www.jpnn.tk/[0-9]{4}/[0-9]{2}/.+html",
+		"title_level": "h1",
+		"title_tag": "class",
+		"title_code": "post-title",
+		"article_level": "div",
+		"article_tag": "id",
+		"article_code": "ads.+",
+		"label": 0,
+		"iteration": 2,
 		"scan": true
+
 	}
 
 

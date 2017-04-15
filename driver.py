@@ -4,9 +4,9 @@ import os
 from lib.grabber import Grabber
 from lib.scanner import Scanner
 from lib.similarity_checker import SimilarityChecker
-from lib.CSVEditor import CSVEditor
-from lib.CSVTranslator import CSVTranslator
-from lib.DictionaryEditor import DictionaryEditor
+from lib.CSVManipulator import CSVManipulator
+from lib.CSVReader import CSVReader
+from lib.TxtManipulator import TxtManipulator
 from lib.TextAnalyzer import TextAnalyzer
 
 class Driver:
@@ -57,24 +57,18 @@ class Driver:
 			Retrieve title and article of URLs from text files based on config. The retrieved information will be
 			inserted into data.csv by default along with the pre-determined label
 		"""
-		default_scanner_error_log_dir = "./scanner_error_log.csv"
+		default_scanner_error_log_dir = "./scan_error_log.csv"
 		open(default_scanner_error_log_dir, 'w') # Will always overwrite existing file
 		
 		Scanner._extract_data()
 
 	@classmethod
-	def compare(cls, csv_src="data.csv", safe=False,
+	def compare(cls, csv_src="data.csv",
 				src_column_index=0, title_column_index=1, article_column_index=2,
 				label_column_index=3, dest_similar="./moderation/similar.csv",
 				dest_unique="./moderation/unique.csv", similarity_threshold=0.75):
 
-		if(safe):
-			SimilarityChecker.safe_analyze(
-				csv_src, src_column_index, title_column_index,
-				article_column_index, label_column_index,
-				dest_similar, dest_unique, similarity_threshold)
-		else:			
-			SimilarityChecker.analyze(
+		SimilarityChecker.analyze(
 				csv_src, src_column_index, title_column_index,
 				article_column_index, label_column_index,
 				dest_similar, dest_unique, similarity_threshold)
@@ -86,36 +80,41 @@ class Driver:
 		
 		if regex_check:
 			if safe:
-				CSVEditor.safe_clean_column_with_regex(csv_src, regex, columns_to_clean)
+				CSVManipulator.safe_clean_column_with_regex(csv_src, regex, columns_to_clean)
 			else:
-				CSVEditor.clean_column_with_regex(csv_src, regex, columns_to_clean)
+				CSVManipulator.clean_column_with_regex(csv_src, regex, columns_to_clean)
 
 		if threshold_check:
-			CSVEditor.remove_under_threshold_columns(csv_src, threshold_column_check, min_legth)
+			CSVManipulator.remove_under_threshold_columns(csv_src, threshold_column_check, min_legth)
 
 		if duplicate_check:
-			CSVEditor.remove_duplicate_columns(csv_src, duplicate_column_check)
+			CSVManipulator.remove_duplicate_columns(csv_src, duplicate_column_check)
 
 	@classmethod
 	def count_label(cls, csv_src, label_column_index):
-		csvTranslator = CSVTranslator()
-		csvTranslator.analyze_tag_distribution(csv_src, label_column_index)
+		CSVReader = CSVReader()
+		CSVReader.analyze_tag_distribution(csv_src, label_column_index)
 
 	@classmethod
 	def tokenize_text_file(cls, txt_src, txt_target=None, regex=None):
-		DictionaryEditor.tokenize_txt_file(txt_src, txt_target=txt_target, regex=regex)
+		TxtManipulator.tokenize_txt_file(txt_src, txt_target=txt_target, regex=regex)
 
 	@classmethod
 	def xor_text_file(cls, src_1, src_2):
-		DictionaryEditor.remove_similar_tokens(src_1, src_2)
+		TxtManipulator.remove_similar_tokens(src_1, src_2)
 
 	@classmethod
 	def sentiment_comparison(
 			cls, csv_src="data.csv", pos_sent_list_dir="./lib/sentiment_dictionary/bahasa/new_positive.txt",
 			neg_sent_list_dir="./lib/sentiment_dictionary/bahasa/new_negative.txt", 
 			dest_over_emotion="./moderation/overexpression.csv", 
-			dest_normal_emotion="./moderation/normalexpression.csv"):
+			dest_normal_emotion="./moderation/normalexpression.csv", sentiment_threshold=0.8):
 
 		textAnalyzer = TextAnalyzer(pos_sent_list_dir=pos_sent_list_dir, neg_sent_list_idr=neg_sent_list_dir)
 		
 
+	@classmethod
+	def split_csv(cls, csv_src="data.csv", target_1="./moderation/split_1.csv", 
+				  target_2="./moderation/split_2.csv", ratio=0.3):
+
+		CSVManipulator.split_csv_data(csv_src, target_1, target_2, ratio)

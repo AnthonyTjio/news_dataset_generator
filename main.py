@@ -11,6 +11,8 @@ else:
 	for line in readline_src:
 		print(line)
 
+	sys.exit()
+
 if(command == "crawl"):
 	Driver.crawl()
 
@@ -18,15 +20,12 @@ elif(command == "scan"):
 	Driver.scan()
 
 elif(command == "compare"):
-	opts, args = getopt.getopt(sys.argv[2:], "hS:s:", ["help=", "safe=", "source="])
+	opts, args = getopt.getopt(sys.argv[2:], "hs:", ["help=", "source="])
 	
-	safe = False
 	src = None
 	
 	for opt, arg in opts:
-		if opt in ("-S", "--safe"):
-			safe = arg
-		elif opt in ("-s", "source"):
+		if opt in ("-s", "source"):
 			src = arg
 		elif opt in ("-h", "--help"):
 			print("main.py -s <SafeStatus> -s <csv_source>")
@@ -35,7 +34,7 @@ elif(command == "compare"):
 	if (src is None):
 		src = "./data.csv"
 
-	Driver.compare(csv_src=src, safe=safe)
+	Driver.compare(csv_src=src)
 
 elif(command == "clean"):
 	opts, args = getopt.getopt(sys.argv[2:], "hS:s:R:r:D:d:T:t:", 
@@ -91,10 +90,19 @@ elif(command == "clean"):
 		sys.exit()
 
 elif(command == "count"):
-	if (len(sys.argv) == 4):
-		src = sys.argv[2].lower()
-		column = sys.argv[3]
-		Driver.count_label(src, column)
+	opts, args = getopt.getopt(sys.argv[2:], "s:c:h", ["source=", "column=", "help"])
+	src = "./data.csv"
+	column = 3
+
+	for opt, arg in opts:
+		if opt in ["-s", "--source"]:
+			src = arg
+		elif opt in ("-c", "--column"):
+			src = int(arg)
+		elif opt in ("-h", "--help"):
+			print("main.py -s <sourcefile> -c <columnindex>")
+
+	Driver.count_label(src, column)
 
 elif(command == "tokentxtfile"):
 	opts, args = getopt.getopt(sys.argv[2:], "i:o:r:", ["input=", "output=", "regex="])
@@ -112,7 +120,7 @@ elif(command == "tokentxtfile"):
 			regex = arg
 
 	if input_file == None:
-		print("main.py -i <inputfile> -o <outputfile> -r <regex>")
+		print("main.py tokentxtfile -i <inputfile> -o <outputfile> -r <regex>")
 	else:
 		Driver.tokenize_text_file(txt_src=input_file, txt_target=output_file, regex=regex)
 
@@ -122,4 +130,14 @@ elif(command == "xortoken"):
 		src_2_dir = sys.argv[3]
 		Driver.xor_text_file(src_1_dir, src_2_dir)
 	else:
-		print("main.py <src_1_dir> <src_2_dir>")
+		print("main.py xortoken <src_1_dir> <src_2_dir>")
+
+elif(command == "splitcsv"):
+	if(len(sys.argv)==6):
+		src_dir = sys.argv[2]
+		target_1_dir = sys.argv[3]
+		target_2_dir = sys.argv[4]
+		ratio = float(sys.argv[5])
+		Driver.split_csv(src_dir, target_1_dir, target_2_dir, ratio)
+	else:
+		print("main.py splitcsv <src_dir> <target_1_dir> <target_2_dir> <ratio>")
