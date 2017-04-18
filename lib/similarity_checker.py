@@ -3,8 +3,8 @@ import numpy as np
 import csv
 from nltk.corpus import stopwords
 
-from .WordSanitizer import WordSanitizer
-from .CSVTranslator import CSVTranslator
+from .StringManipulator import StringManipulator
+from .CSVReader import CSVReader
 from .TFIDFCalculator import TFIDFCalculator
 
 class SimilarityChecker:
@@ -33,33 +33,31 @@ class SimilarityChecker:
 			TfIdfCalculator = TFIDFCalculator()
 
 			similarity_threshold = 1-similarity_threshold
-			news = CSVTranslator.csv_to_list(csv_src)
+			np_news = CSVReader.csv_to_numpy_list(csv_src)
 
-			np_news = np.array(news) 
-
-			text_list = np_news[:,2].tolist() # Retrieve articles to list
+			text_list = np_news[:,article_column_index].tolist() # Retrieve articles to list
+			np_text_list = np_news[:, article_column_index]
 
 			TfIdfCalculator.load_possible_terms(text_list)
-			tf_idf = TfIdfCalculator.calculate_tf_idf(text_list)
+			tf_idf = TfIdfCalculator.calculate_tf_idf(np_text_list)
 
 			classified_index = []
 			similar_index = 0
 
 			for main_index, main_news in enumerate(np_news):
 				if (main_index in classified_index):
-					print("MISS")
 					continue
 
 				print("Comparing "+main_news[title_column_index]+" from "+main_news[src_column_index])
+
 				classified_index.append(main_index)
 				similar_indexes = []
 
-				for secondary_index in range(main_index, len(news)):
+				for secondary_index in range(main_index, len(np_news)):
 					if (secondary_index in classified_index):
 						continue
 
 					secondary_news = np_news[secondary_index]
-
 					term1 = tf_idf[main_index].copy()
 					term2 = tf_idf[secondary_index].copy()
 
@@ -76,7 +74,6 @@ class SimilarityChecker:
 
 					distance = nltk.cluster.util.cosine_distance(v1,v2) # closer to 0 is more similar
 
-					print(main_news[title_column_index]+" COMPARED WITH "+secondary_news[title_column_index]+str(distance))
 					if(distance < similarity_threshold):
 						similar_indexes.append(secondary_index)
 
@@ -90,7 +87,6 @@ class SimilarityChecker:
 					data.append(main_news[label_column_index])
 					sim_writer.writerow(data)
 
-					print(similar_indexes)
 					for index in similar_indexes:
 						data = []
 						secondary_news = np_news[index]

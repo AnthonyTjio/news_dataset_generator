@@ -49,7 +49,6 @@ class Grabber:
 				html_page = requests.get(url, headers= cls.header)
 				soup = BeautifulSoup(html_page.text, 'html5lib')
 				a = soup.findAll('a', href=re.compile(regex))
-
 				for link in a:
 					href = link['href']
 					link_list.append(href)
